@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #f1f1f1;
+}
+
+.header {
+  padding: 2px;
+  font-size: 40px;
+  text-align: center;
+  background: white;
+}
+
+.leftcolumn {   
+  float: left;
+  width: 100%;
+}
+
+.card {
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+@media screen and (max-width: 800px) {
+  .leftcolumn, .rightcolumn {   
+    width: 100%;
+    padding: 0;
+  }
+}
+
+button {
+  margin: 5px;
+  padding: 10px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+input[type="text"], textarea {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type="submit"] {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+}
+/* Modal Styles */
+.modal {
+  display: none; 
+  position: fixed; 
+  z-index: 1; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgb(0,0,0); 
+  background-color: rgba(0,0,0,0.4); 
+  padding-top: 60px; 
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h2>JackFrost's Blog</h2>
+</div>
+
+<div class="row" id="post-row">
+    <div class="leftcolumn">       
+        <div class="card">
+            {% if editing %}
+                <form method="post" action="{% url 'editPost' post.id %}">
+                    {% csrf_token %}
+                    <p>Title</p>
+                    <input type="text" name="title" value="{{ post.title }}">
+                    <p>Body</p>
+                    <textarea name="body" rows="10">{{ post.body }}</textarea><br>
+                    <input type="submit" value="Save Changes">
+                    {% if error_message %}
+                        <p class="error-message">{{ error_message }}</p>
+                    {% endif %}
+                </form>
+            {% else %}
+                <h2 id="post-title">{{ post.title }}</h2>
+                <h5 id="post-date">{{ post.created_At }}</h5>
+                <p id="post-body">{{ post.body }}</p>
+                <button id="editBtn">Edit</button>
+                <button id="deleteBtn">Delete</button>
+            {% endif %}
+        </div>        
+    </div>
+</div>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>Are you sure you want to delete this post?</p>
+    <form method="post" action="{% url 'delete' post.id%}" id="deleteForm">
+        {% csrf_token %}
+        <button type="button" id="confirmDelete">Yes</button>
+        <button type="button" id="cancelDelete">No</button>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('editBtn').onclick = function() {
+    var title = document.getElementById('post-title').innerText;
+    var body = document.getElementById('post-body').innerText;
+
+    document.getElementById('post-row').innerHTML = `
+        <div class="leftcolumn">       
+            <div class="card">
+                <form method="post" action="{% url 'editPost' post.id %}">
+                    {% csrf_token %}
+                    <p>Title</p>
+                    <input type="text" name="title" value="${title}">
+                    <p>Body</p>
+                    <textarea name="body" rows="10">${body}</textarea><br>
+                    <input type="submit" value="Save Changes">
+                </form>
+            </div>        
+        </div>
+    `;
+}
+
+document.getElementById('deleteBtn').onclick = function() {
+    document.getElementById('myModal').style.display = "block";
+}
+
+document.getElementsByClassName('close')[0].onclick = function() {
+    document.getElementById('myModal').style.display = "none";
+}
+
+document.getElementById('cancelDelete').onclick = function() {
+    document.getElementById('myModal').style.display = "none";
+}
+
+document.getElementById('confirmDelete').onclick = function() {
+    document.getElementById('deleteForm').submit();
+}
+</script>
+
+</body>
+</html>
