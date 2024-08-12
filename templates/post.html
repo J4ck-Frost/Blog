@@ -138,22 +138,30 @@ input[type="submit"]:hover {
     <div class="leftcolumn">       
         <div class="card">
             {% if editing %}
-                <form method="post" action="{% url 'editPost' post.id %}">
+                <!-- Form for editing the post -->
+                <form method="post" action="{% url 'editPost' post.id %}" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <p>Title</p>
-                    <input type="text" name="title" value="{{ post.title }}">
-                    <p>Body</p>
-                    <textarea name="body" rows="10">{{ post.body }}</textarea><br>
+                    {{ form.as_p }}
                     <input type="submit" value="Save Changes">
-                    {% if error_message %}
-                        <p class="error-message">{{ error_message }}</p>
-                    {% endif %}
                 </form>
             {% else %}
+                <!-- Display post content -->
+                {% if post.image %}
+                <img src="{{post.image.url}}" alt="{{post.title}}" width="200">
+                {% endif %}  
                 <h2 id="post-title">{{ post.title }}</h2>
                 <h5 id="post-date">{{ post.created_At }}</h5>
                 <p id="post-body">{{ post.body }}</p>
-                <button id="editBtn">Edit</button>
+                {% if post.file %}
+                  <a href="{{post.file.url}}" target="_blank">{{post.file_name}}</a>
+                {% endif %}
+                {% if post.url %}
+                <div class="ratio ratio-21x9">
+                  <iframe src="{{post.url}}" title="YouTube video"></iframe>
+                </div>   
+                {% endif %}
+                <!-- Buttons to edit or delete -->
+                <button onclick="location.href='{% url 'editPost' post.id %}'">Edit</button>
                 <button id="deleteBtn">Delete</button>
             {% endif %}
         </div>        
@@ -174,25 +182,6 @@ input[type="submit"]:hover {
 </div>
 
 <script>
-document.getElementById('editBtn').onclick = function() {
-    var title = document.getElementById('post-title').innerText;
-    var body = document.getElementById('post-body').innerText;
-
-    document.getElementById('post-row').innerHTML = `
-        <div class="leftcolumn">       
-            <div class="card">
-                <form method="post" action="{% url 'editPost' post.id %}">
-                    {% csrf_token %}
-                    <p>Title</p>
-                    <input type="text" name="title" value="${title}">
-                    <p>Body</p>
-                    <textarea name="body" rows="10">${body}</textarea><br>
-                    <input type="submit" value="Save Changes">
-                </form>
-            </div>        
-        </div>
-    `;
-}
 
 document.getElementById('deleteBtn').onclick = function() {
     document.getElementById('myModal').style.display = "block";

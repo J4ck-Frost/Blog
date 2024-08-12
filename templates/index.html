@@ -47,10 +47,21 @@
         <div class="leftcolumn">     
             {% for post in posts %}
             <div class="post">
+              {% if post.image %}
               <a style="text-decoration: none; color: black;" href="/post/{{post.id}}">
+                <img src="{{post.image.url}}" alt="{{post.title}}" width="200">
+              {% endif %}  
                 <h2>{{post.title}}</h2>
                 <h5>{{post.created_At}}</h5>
                 <p>{{post.body|truncatewords:20}}</p>
+                {% if post.file %}
+                  <a href="{{post.file.url}}" target="_blank">{{post.file_name}}</a>
+                {% endif %}
+                {% if post.url %}
+                <div class="ratio ratio-21x9">
+                  <iframe src="{{post.url}}" title="YouTube video"></iframe>
+                </div> 
+                {% endif %}   
               </a>
             </div>
             {% endfor %}
